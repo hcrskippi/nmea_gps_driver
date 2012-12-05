@@ -192,22 +192,25 @@ if __name__ == "__main__":
                         if fields[3] == 'S':
                             latitude = -latitude
                         navData.latitude = latitude
-
+                        print("Lat : %f" %latitude);
+                        
                         longitude = float(fields[4][0:3]) + float(fields[4][3:])/60
                         if fields[5] == 'W':
                             longitude = -longitude
                         navData.longitude = longitude
-
+                        print("Long : %f" %longitude);
+                        
                         hdop = float(fields[8])
+                        print("Horizontal Dilution of Position : %f" %hdop);
                         navData.position_covariance[0] = hdop**2
                         navData.position_covariance[4] = hdop**2
                         navData.position_covariance[8] = (2*hdop)**2 #FIX ME
                         navData.position_covariance_type = NavSatFix.COVARIANCE_TYPE_APPROXIMATED
 
                         #Altitude is above ellipsoid, so adjust for mean-sea-level
-                        altitude = float(fields[9]) + float(fields[11])
+                        altitude = float(fields[9]) # Removed causing errors + float(fields[11])
                         navData.altitude = altitude
-
+                        print("Altitude : %f" %altitude);
 
                         gpstime.header.stamp = timeNow
                         gpstime.time_ref = convertNMEATimeToROS(fields[1])
@@ -215,7 +218,7 @@ if __name__ == "__main__":
                         gpspub.publish(navData)
                         gpstimePub.publish(gpstime)
             except ValueError as e:
-                rospy.logwarn("Value error, likely due to missing fields in the NMEA messages. Error was: %s" % e)
-
+                rospy.logwarn("Value error, likely due to missing fields in the NMEA messages. Error was: %s" %e)
+                rospy.logwarn("Value of data is: %s" %data)
     except rospy.ROSInterruptException:
         GPS.close() #Close GPS serial port
